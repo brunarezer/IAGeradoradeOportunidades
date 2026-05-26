@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IA Geradora de Oportunidades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#120019;
+      --bg-2:#1b0428;
+      --panel:#190724;
+      --panel-2:#241036;
+      --panel-3:#2d1542;
+      --text:#f7f3fb;
+      --muted:#cdbedb;
+      --faint:#a48fb5;
+      --accent:#b44cff;
+      --accent-2:#7d2bff;
+      --accent-3:#e8d5ff;
+      --line:rgba(255,255,255,.1);
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --radius:20px;
+      --shadow:0 20px 50px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Inter',system-ui,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(180,76,255,.28), transparent 20%),
+        radial-gradient(circle at 50% 70%, rgba(125,43,255,.20), transparent 35%),
+        linear-gradient(180deg, #0b0010 0%, #170021 45%, #230033 100%);
+      min-height:100vh;
+    }
+    .shell{max-width:1320px;margin:0 auto;padding:20px}
+    .hero{
+      position:relative; overflow:hidden; border:1px solid var(--line); border-radius:32px;
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow:var(--shadow); padding:28px 28px 22px;
+    }
+    .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at center, rgba(180,76,255,.22), transparent 42%);pointer-events:none}
+    .hero-top{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+    .brand-left,.brand-right{display:flex;align-items:center;gap:16px;min-width:0}
+    .brand-left img,.brand-right img{display:block;object-fit:contain;max-width:100%}
+    .logo-unifecaf{width:min(240px,32vw)}
+    .logo-aosv{width:min(190px,24vw);border-radius:14px}
+    .title-wrap{
+      min-width:0;
+      text-align:center;
+      width:100%;
+    }
+    .title{
+      font-family:'Anton', Impact, sans-serif; text-transform:uppercase; line-height:.9; letter-spacing:.02em;
+      font-size:clamp(2.6rem,6vw,6.8rem); margin:0; text-shadow:0 8px 24px rgba(0,0,0,.35);
+      word-break:break-word;
+    }
+    .author{position:relative;z-index:1;margin-top:18px;text-align:center;font-weight:800;font-size:clamp(1rem,2vw,1.25rem);color:var(--accent-3);letter-spacing:.08em}
+    .intro{position:relative;z-index:1;margin:18px auto 0;max-width:78ch;text-align:center;color:var(--muted);line-height:1.75}
+
+    .tabs-wrap{margin-top:22px;border:1px solid var(--line);border-radius:24px;background:rgba(19,7,27,.82);backdrop-filter:blur(10px);box-shadow:var(--shadow);overflow:hidden}
+    .tabs-header{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      padding:12px 16px;
+      border-bottom:1px solid var(--line);
+    }
+    .tab-btn{
+      flex:0 0 auto;
+      text-align:left;
+      padding:8px 14px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-weight:600;
+      font-size:.9rem;
+      cursor:pointer;
+      transition:.2s transform,.2s background,.2s border-color;
+    }
+    .tab-btn:hover,.tab-btn.active{background:linear-gradient(180deg, rgba(180,76,255,.18), rgba(125,43,255,.12));border-color:rgba(232,213,255,.28);transform:translateY(-1px)}
+    .tab-small{display:block;font-weight:500;color:var(--muted);font-size:.88rem;margin-top:6px}
+    .content{padding:22px}
+    .tab-panel{display:none;animation:fade .25s ease}
+    .tab-panel.active{display:block}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    .section-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+    .section-head p{margin:0;color:var(--muted);line-height:1.7; text-align: justify; text-justify: inter-word;}
+    .badge{padding:8px 12px;border-radius:999px;background:rgba(180,76,255,.15);border:1px solid rgba(232,213,255,.18);color:var(--accent-3);font-size:.86rem;font-weight:700}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .card{padding:18px;border-radius:20px;background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.025));border:1px solid var(--line)}
+    /* card especial em largura total */
+    .curva-full{
+      display:flex;
+      flex-wrap:wrap;
+      gap:32px;              /* era 20px */
+      align-items:flex-start;/* deixa topo alinhado, fica mais leve */
+      margin-top:24px;
+      margin-bottom:8px;     /* afasta do próximo card */
+    }
+
+    /* bloco de texto */
+    .curva-texto{
+      flex:1 1 0;
+      min-width:340px;
+    }
+
+    /* bloco da imagem */
+    .curva-imagem{
+      flex:0 0 38%;          /* antes 1 1 260px: agora ela pega ~38% da largura */
+      max-width:360px;       /* trava para não ficar gigante em telas muito largas */
+      min-width:260px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+
+    .curva-imagem img{
+      width:100%;            /* encaixa dentro desse bloco menor */
+      height:auto;
+      border-radius:16px;
+      border:1px solid var(--line);
+    }
+
+    .curva-legenda{
+      font-size:.8rem;
+      color:var(--faint);
+      text-align:center;
+      line-height:1.4;
+    }
+
+    /* No mobile, empilha texto e imagem um embaixo do outro */
+    @media (max-width: 800px){
+      .curva-full{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .curva-imagem{
+        align-items:flex-start;
+      }
+    }
+    .card h3{margin:0 0 10px;font-size:1.02rem}
+    .card p{margin:0;color:var(--muted);line-height:1.65;text-align: justify;text-justify: inter-word;}
+    .card ul{margin:12px 0 0;padding-left:18px;color:var(--muted);line-height:1.65;text-align: justify;text-justify: inter-word;}
+    .prompt-intro{
+      margin:18px 4px 10px;
+      padding:14px 16px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      color:var(--muted);
+      max-width:72ch;
+      line-height:1.7;
+    }
+    .prompt-intro strong{
+      display:block;
+      margin-bottom:6px;
+      color:var(--accent-3);
+      font-size:.95rem;
+    }
+    .prompt-card{margin-top:16px}
+    .prompt-title{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px}
+    .prompt-title h3{margin:0}
+    .label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-3)}
+    .codebox{position:relative;background:#0e0615;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;color:#f3eaff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.91rem;line-height:1.65;white-space:pre-wrap}
+    .copy-btn{position:absolute;top:12px;right:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);padding:8px 12px;border-radius:12px;cursor:pointer}
+    .tools{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .tool-link{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--accent-3);text-decoration:none}
+    .accordion{display:grid;gap:12px;margin-top:14px}
+    .acc-item{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.025)}
+    .acc-btn{width:100%;padding:16px 18px;background:none;border:none;color:var(--text);text-align:left;font-weight:800;cursor:pointer;display:flex;justify-content:space-between;gap:12px}
+    .acc-content{display:none;padding:0 18px 18px;color:var(--muted);line-height:1.7;text-align: justify;text-justify: inter-word;}
+    .acc-item.open .acc-content{display:block}
+    .callout{padding:16px 18px;border-radius:18px;border:1px solid rgba(245,158,11,.25);background:rgba(245,158,11,.08);color:#f8e6b7;margin:18px 0}
+    .credit{padding:16px 18px;border-radius:18px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.08);color:#d7ffe4;margin:18px 0}
+    .footer-note{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);color:var(--faint);font-size:.92rem;line-height:1.7;text-align: justify;text-justify: inter-word;}
+
+    @media (max-width: 980px){
+      .hero-top{grid-template-columns:1fr;justify-items:center;text-align:center}
+      .brand-left,.brand-right{justify-content:center}
+      .brand-left{flex-direction:column;gap:12px}
+      .title{font-size:clamp(2.4rem,10vw,4.6rem)}
+      .cards{grid-template-columns:1fr}
+      .content{padding:18px}
+      .tab-btn{min-width:180px}
+      .logo-unifecaf{width:min(220px,56vw)}
+      .logo-aosv{width:min(180px,50vw)}
+    }
+    @media (max-width: 640px){
+      .shell{padding:12px}
+      .hero{padding:18px 16px}
+      .tabs-header{padding:12px}
+      .tab-btn{min-width:155px;padding:12px 14px}
+      .author{margin-top:14px}
+      .intro{font-size:.96rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="brand-left">
+          <img class="logo-unifecaf" src="assets/logo-unifecaf.png" alt="Logo da UniFECAF" />
+          <div class="title-wrap">
+            <h1 class="title">IA GERADORA DE OPORTUNIDADES</h1>
+          </div>
+        </div>
+        <div class="brand-right">
+          <img class="logo-aosv" src="assets/logo-aosv.png" alt="Logo da AOSV" />
+        </div>
+      </div>
+      <div class="author">Bruna Rezer</div>
+      <p class="intro">Material interativo de apoio da palestra, pensado para você consultar durante e depois do encontro.</p>
+    </section>
+
+    <section class="tabs-wrap">
+      <div class="tabs-header" role="tablist" aria-label="Abas do material interativo">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="visao-geral" data-tab="visao-geral">Visão geral</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="estudos" data-tab="estudos">Estudos</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="musica" data-tab="musica">Música</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="trabalho" data-tab="trabalho">Trabalho</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="uso-geral" data-tab="uso-geral">Uso geral</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="prompts" data-tab="prompts">Prompt engineering</button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="etica" data-tab="etica">Ética e segurança</button>
+        <button class="tab-btn" role="tab" aria-selected="false"
+        aria-controls="meio-ambiente" data-tab="meio-ambiente">Meio ambiente e a IA</button>
+      </div>
+
+      <main class="content">
+
+        <section id="visao-geral" class="tab-panel active">
+          <div class="section-head">
+            <div>
+              <h2>Visão geral</h2>
+              <p>
+                Nesta parte eu quero te colocar na mesma página que eu. Quando falamos em
+                “inteligência artificial” aqui, não estamos falando de um robô consciente, mas
+                de modelos matemáticos que aprenderam a reconhecer padrões em muitos dados e,
+                a partir disso, sugerir respostas que parecem plausíveis.
+              </p>
+              <p>
+                Ao longo da palestra eu vou mostrar exemplos ao vivo. Aqui no material, você
+                encontra a mesma ideia organizada com mais calma, para poder rever depois e
+                testar no seu próprio ritmo.
+              </p>
+            </div>
+            <span class="badge">Abertura da palestra</span>
+          </div>
+
+          <div class="cards">
+            <article class="card">
+              <h3>O que eu quero que você perceba</h3>
+              <ul>
+                <li>
+                  A IA é uma ferramenta de apoio: ela “chuta” a resposta mais provável com base
+                  nos dados em que foi treinada.
+                </li>
+                <li>
+                  Você já usa IA no dia a dia sem perceber: recomendações do Spotify e YouTube,
+                  filtros, correção automática do celular, reconhecimento de imagem e som.
+                </li>
+                <li>
+                  O diferencial não é “ter acesso” à IA, e sim saber usar de forma crítica:
+                  pedir direito, revisar o que ela traz e adaptar para a sua realidade.
+                </li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Exemplos para conectar com a sua rotina</h3>
+              <ul>
+                <li>
+                  Quando o Spotify acerta uma playlist que é “a sua cara”, ele está comparando
+                  o que você ouve com o histórico de milhões de pessoas.
+                </li>
+                <li>
+                  Quando o YouTube sugere um vídeo que você provavelmente vai clicar, ele está
+                  prevendo seu comportamento a partir dos seus hábitos e dos hábitos de pessoas
+                  parecidas com você.
+                </li>
+                <li>
+                  Quando o celular corrige uma palavra ou completa uma frase, ele está
+                  tentando prever qual seria a próxima palavra mais comum naquele contexto.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="accordion">
+            <div class="acc-item open">
+              <button class="acc-btn">
+                Como usar este material <span>+</span>
+              </button>
+              <div class="acc-content">
+                Pense neste material como um mapa da palestra. Enquanto eu falo, você pode
+                navegar pelas abas para ir vendo exemplos, prompts e links do bloco
+                correspondente. Depois, em casa, você pode voltar em cada aba com calma e
+                testar os prompts com os seus próprios assuntos.
+              </div>
+            </div>
+
+            <div class="acc-item">
+              <button class="acc-btn">
+                O que não vai caber na fala <span>+</span>
+              </button>
+              <div class="acc-content">
+                Por questão de tempo, nem tudo o que está escrito aqui vai aparecer na minha
+                fala. Eu selecionei alguns trechos para aprofundar temas como estudos,
+                música, trabalho e ética. Se algum assunto te chamar atenção durante a
+                palestra, vale já marcar a aba correspondente para revisitar depois.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="estudos" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Estudos</h2>
+              <p>
+                Aqui eu quero te mostrar como a IA pode ser uma aliada nos estudos, sem tirar
+                de você a parte mais importante: entender, pensar, praticar. A ideia não é
+                “deixar a IA estudar por você”, e sim usar essas ferramentas como um tutor
+                paciente, que ajuda a organizar, explicar e revisar o conteúdo.
+              </p>
+              <p>
+                Use esta aba quando estiver estudando em casa, revisando para prova, montando
+                rotina de estudos ou tentando entender um texto difícil. Primeiro eu explico
+                o papel de cada ferramenta, depois deixo prompts prontos para você testar.
+              </p>
+            </div>
+            <span class="badge">Bloco educação</span>
+          </div>
+
+          <!-- Visão geral das ferramentas -->
+          <div class="cards">
+            <article class="card">
+              <h3>IA de texto (ChatGPT / Gemini)</h3>
+              <p>
+                Aqui entram os modelos de conversa. Eles respondem perguntas, explicam
+                conteúdos, criam questões e ajudam a montar planos de estudo. A vantagem
+                é poder pedir explicações em vários níveis: do básico ao avançado.
+              </p>
+              <ul>
+                <li>Bom para tirar dúvidas pontuais.</li>
+                <li>Ótimo para criar questões de treino, resumos e planos.</li>
+                <li>Não substitui o livro nem o professor: você continua responsável por conferir.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>NotebookLM</h3>
+              <p>
+                O NotebookLM é um ambiente em que você “alimenta” a IA com os seus próprios
+                materiais: PDFs, textos, anotações, links. Ele responde somente com base
+                nesses arquivos, o que é ótimo para trabalhos, TCC, provas específicas.
+              </p>
+              <ul>
+                <li>Você escolhe quais documentos a IA vai usar.</li>
+                <li>Ajuda a fazer resumos, roteiros, mapas mentais e roteiros de podcast.</li>
+                <li>É ideal quando você não quer que a IA “invente” nada fora da sua fonte.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Anki e repetição espaçada</h3>
+              <p>
+                O Anki é um programa gratuito de flashcards. Ele te mostra cada cartão na
+                hora certa, baseado na curva do esquecimento: logo depois de aprender, você
+                esquece rápido se não revisa. A revisão espaçada reforça a memória antes
+                dela “apagar”.
+              </p>
+              <ul>
+                <li>Cada cartão tem frente (pergunta) e verso (resposta).</li>
+                <li>Você marca se foi fácil, médio ou difícil.</li>
+                <li>O Anki calcula quando te mostrar de novo para você lembrar por mais tempo.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Planejadores e calendários</h3>
+              <p>
+                Aqui entram planilhas, agendas e calendários digitais. A IA ajuda a montar
+                o primeiro rascunho do plano de estudos, mas quem conhece a rotina é você.
+                Ajustar o plano à sua realidade é parte importante do processo.
+              </p>
+              <ul>
+                <li>Use IA para gerar uma proposta de rotina.</li>
+                <li>Ajuste horários, dias e pausas conforme sua vida real.</li>
+                <li>Revise o plano a cada semana, dando feedback para a própria IA.</li>
+              </ul>
+            </article>
+          </div>
+
+            <!-- Card em largura total para a curva do esquecimento -->
+          <article class="card curva-full">
+            <div class="curva-texto">
+              <h3>Curva do esquecimento</h3>
+              <p>
+                Quando você estuda uma vez e nunca mais volta naquele conteúdo, o cérebro
+                simplesmente começa a apagar. Em poucas horas e dias, a retenção cai muito
+                se não houver nenhuma revisão.
+              </p>
+              <p>
+                Cada revisão “levanta” a curva de novo. Revisar no dia seguinte, depois de
+                alguns dias e novamente depois de algumas semanas ajuda o cérebro a entender
+                que aquilo é importante e deve ser mantido.
+              </p>
+              <ul>
+                <li>Sem revisão: em poucos dias você lembra de muito pouco.</li>
+                <li>Com revisão espaçada: a curva cai menos e se estabiliza mais alto.</li>
+                <li>Flashcards (como no Anki) são uma forma prática de aplicar essa ideia.</li>
+              </ul>
+            </div>
+            <div class="curva-imagem">
+              <img src="assets/curva-esquecimento.jpg" alt="Gráfico da curva do esquecimento de Ebbinghaus mostrando a queda da retenção ao longo do tempo e o efeito das revisões." />
+              <span class="curva-legenda">
+                Representação da curva do esquecimento de Ebbinghaus, com revisões
+                elevando a retenção ao longo do tempo.
+              </span>
+            </div>
+          </article>
+
+          <div class="cards">
+            <article class="card">
+              <h3>Técnica Pomodoro e pausas</h3>
+              <p>
+                O cérebro não foi feito para ficar focado 3 horas seguidas na mesma coisa.
+                A técnica Pomodoro é uma forma simples de alternar foco e descanso: você
+                estuda por cerca de 25 minutos e faz uma pausa de 5 minutos.
+              </p>
+              <ul>
+                <li>4 blocos de 25 minutos + 5 minutos de pausa formam um “ciclo”.</li>
+                <li>Depois de 4 blocos, você faz uma pausa maior, de 15 a 30 minutos.</li>
+                <li>Nas pausas, levante, alongue, beba água, olhe para longe da tela. Isso ajuda
+                  o cérebro a voltar mais inteiro para o próximo bloco.
+                </li>
+              </ul>
+              <p>
+                Você pode combinar Pomodoro com revisão espaçada: por exemplo, usar o
+                primeiro bloco do dia só para revisar o que estudou ontem, antes de avançar
+                em conteúdo novo.
+              </p>
+            </article>
+
+            <article class="card">
+              <h3>Caminhada e pausas ativas</h3>
+              <p>
+                Estudar não é só ficar sentado. Pausas ativas – levantar, caminhar um pouco,
+                alongar – ajudam a reduzir a fadiga mental e a melhorar a concentração.
+              </p>
+              <ul>
+                <li>Caminhadas curtas, especialmente em ambientes com natureza, já mostraram
+                  melhorar o desempenho em tarefas de memória e atenção.
+                </li>
+                  <li>A cada 50–60 minutos de estudo, vale programar 5–10 minutos para se mexer,
+                  respirar e dar um descanso real para o cérebro.
+                </li>
+              </ul>
+              <p>
+                Se você sentir que travou em um exercício ou texto, às vezes uma caminhada
+                rápida resolve mais do que forçar mais meia hora olhando para a página.
+              </p>
+            </article>
+          </div>
+
+          <!-- Links diretos das ferramentas -->
+          <div class="tools">
+            <a class="tool-link" href="https://chatgpt.com" target="_blank" rel="noopener noreferrer">ChatGPT</a>
+            <a class="tool-link" href="https://gemini.google.com" target="_blank" rel="noopener noreferrer">Gemini</a>
+            <a class="tool-link" href="https://notebooklm.google.com" target="_blank" rel="noopener noreferrer">NotebookLM</a>
+            <a class="tool-link" href="https://apps.ankiweb.net" target="_blank" rel="noopener noreferrer">Anki</a>
+          </div>
+
+          <div class="prompt-intro">
+            <strong>Pronto para copiar, colar e sair estudando</strong>
+            <p>
+              A partir daqui, você tem prompts prontos para usar. Escolha o que faz sentido
+              para o seu momento, copie o texto inteiro e cole em uma das ferramentas acima
+              (de preferência ChatGPT ou Gemini). Depois, adapte os campos entre colchetes
+              com a sua realidade e deixe a IA trabalhar a seu favor.
+            </p>
+          </div>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Tutor socrático</div>
+                <h3>Para aprender sem receber a resposta pronta</h3>
+              </div>
+            </div>
+            <p>
+              Use este prompt quando você quiser entender um assunto de verdade. A IA faz
+              o papel de professor que pergunta, dá pistas e só entrega a resposta quando
+              você já tentou pensar sozinho.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Atue como um tutor socrático de [MATÉRIA].
+Meu nível atual é [NÍVEL].
+Estou estudando [TEMA].
+Meu objetivo é [OBJETIVO].
+
+Quero que você:
+1. não entregue a resposta de imediato;
+2. faça perguntas que me levem a raciocinar;
+3. identifique onde estou errando;
+4. dê pistas graduais, do mais leve ao mais direto;
+5. ao final, monte um resumo curto do que aprendi e 3 questões de revisão.
+
+Se eu demonstrar dificuldade, explique com analogias simples e exemplos do cotidiano.
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Resumo de texto longo</div>
+                <h3>Para entender artigo ou capítulo difícil</h3>
+              </div>
+            </div>
+            <p>
+              Aqui a ideia é usar a IA como alguém que “traduza” o texto acadêmico para uma
+              linguagem mais direta, sem que você abandone a leitura original.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Leia o texto a seguir sobre [TEMA].
+Quero uma síntese em linguagem clara para um estudante de [NÍVEL DE ENSINO].
+Entregue em 5 partes:
+1. tema central em 1 frase;
+2. conceitos-chave em tópicos;
+3. metodologia ou argumento principal;
+4. conclusão prática;
+5. glossário com os termos mais difíceis.
+
+Depois crie 5 perguntas de autoavaliação com gabarito comentado.
+
+Texto/base: [COLE O ARTIGO OU TRECHO]
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Flashcards e memória</div>
+                <h3>Para usar junto com o Anki</h3>
+              </div>
+            </div>
+            <p>
+              Este prompt transforma resumos, apostilas e anotações em cartões de revisão
+              espaçada. Depois é só importar para o Anki e seguir revisando nos dias certos.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Transforme o conteúdo abaixo em flashcards para revisão espaçada.
+Tema: [TEMA]
+Nível: [NÍVEL]
+Quantidade desejada: [NÚMERO]
+
+Regras:
+- faça cartões curtos;
+- uma ideia por cartão;
+- varie entre definição, comparação, causa e consequência, exemplo e aplicação;
+- evite perguntas vagas;
+- marque os cartões por dificuldade: fácil, média ou alta.
+
+Formato:
+Frente | Verso | Dificuldade
+
+Conteúdo-base: [COLE O CONTEÚDO]
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Rotina de estudos</div>
+                <h3>Para montar cronograma com data de prova</h3>
+              </div>
+            </div>
+            <p>
+              Quando você tiver uma prova com data marcada (ENEM, concurso, faculdade), este
+              prompt ajuda a transformar o seu tempo disponível em um plano organizado.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Monte uma rotina de estudos personalizada.
+Contexto: [ENEM / CONCURSO / FACULDADE / OUTRO]
+Data da prova: [DATA]
+Tempo diário disponível: [TEMPO]
+Dias por semana: [DIAS]
+Matérias: [LISTA]
+Minhas maiores dificuldades: [LISTA]
+
+Quero que você entregue:
+1. cronograma semanal;
+2. prioridade por matéria;
+3. blocos de estudo, revisão e exercícios;
+4. metas quinzenais;
+5. estratégia de revisão final para a semana da prova.
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Provas anteriores</div>
+                <h3>Para usar concurso e ENEM como referência</h3>
+              </div>
+            </div>
+            <p>
+              Se a prova tem histórico, vale usar a IA para enxergar padrões e distribuir
+              melhor o seu esforço entre as matérias.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Quero estudar para o [NOME DA PROVA].
+Tipo: [ENEM / CONCURSO / VESTIBULAR / OUTRO]
+Banca (se houver): [BANCA]
+Cargo ou curso: [CARGO / CURSO]
+Data prevista: [DATA]
+Tempo diário: [TEMPO]
+
+Sua tarefa é:
+1. organizar os assuntos por ordem de importância;
+2. sugerir uma sequência de estudo;
+3. indicar quantas questões eu deveria resolver por semana;
+4. propor revisões periódicas;
+5. montar uma estratégia para a semana da prova.
+
+Se você precisar de provas anteriores ou edital, me diga exatamente quais documentos eu devo anexar.
+            </div>
+          </article>
+
+          <div class="accordion">
+            <div class="acc-item open">
+              <button class="acc-btn">
+                Como não transformar a IA em muleta <span>+</span>
+              </button>
+              <div class="acc-content">
+                Sempre que usar IA para estudar, tente primeiro responder você mesmo.
+                Depois compare com a resposta da IA. Use os prompts de tutor e de questões
+                comentadas para praticar, não só para “ver o gabarito”. Quanto mais ativo
+                você for no processo, mais esse material vai te ajudar de verdade.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="musica" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Música</h2>
+              <p>
+                Esta aba é para você que estuda ou toca na orquestra, dá aula ou simplesmente
+                gosta de música. A ideia é mostrar como a IA pode te ajudar a estudar melhor,
+                montar arranjos, testar ideias e organizar a rotina de prática, sem “roubar”
+                o lugar do estudo musical tradicional.
+              </p>
+              <p>
+                Pense na IA aqui como um assistente: ela não toca no seu lugar, mas agiliza
+                tarefas chatas, sugere possibilidades e te ajuda a enxergar o que talvez você
+                não veria sozinho naquele momento.
+              </p>
+            </div>
+            <span class="badge">Bloco música</span>
+          </div>
+
+          <!-- Visão geral das ferramentas musicais -->
+          <div class="cards">
+            <article class="card">
+              <h3>Klangio / Piano2Notes (transcrição)</h3>
+              <p>
+                São ferramentas de transcrição que tentam transformar áudio em partitura ou
+                MIDI. Funcionam melhor com gravações limpas (um instrumento por vez) e ajudam
+                a ter uma base escrita para estudo ou arranjo.
+              </p>
+              <ul>
+                <li>Útil para tirar música de ouvido quando você está sem tempo.</li>
+                <li>Serve como rascunho: você ainda ajusta a partitura depois.</li>
+                <li>Quanto mais clara a gravação, melhor o resultado.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Basic Pitch (Spotify)</h3>
+              <p>
+                O Basic Pitch é uma ferramenta gratuita que converte áudio em MIDI. Ele não
+                gera partitura direto, mas o arquivo MIDI pode ser importado em editores
+                (MuseScore, por exemplo) para virar partitura.
+              </p>
+              <ul>
+                <li>Gratuito e online.</li>
+                <li>Bom para linhas melódicas e solos.</li>
+                <li>Exige edição posterior para limpar erros de notas e tempo.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Moises / LALAL.AI (separação de trilhas)</h3>
+              <p>
+                Essas ferramentas separam uma gravação em “stem”: voz, baixo, bateria,
+                harmonia, etc. Isso é ótimo para estudar arranjo, ouvir sua linha isolada
+                ou preparar materiais didáticos.
+              </p>
+              <ul>
+                <li>Permitem isolar o seu instrumento para estudar por cima.</li>
+                <li>Boas para criar versões “play along” para alunos.</li>
+                <li>Em versões gratuitas, costumam ter limite de minutos por mês.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Suno e afins (geração de música)</h3>
+              <p>
+                São IAs que geram músicas completas a partir de texto. Elas são legais para
+                experimentar estilos e trilhas, mas ainda não substituem a sensibilidade de
+                um arranjador ou compositor humano.
+              </p>
+              <ul>
+                <li>Bom para ter ideias de clima, textura e referência.</li>
+                <li>Interessante para trilhas de vídeo e projetos rápidos.</li>
+                <li>É importante cuidar de direitos autorais e uso comercial.</li>
+              </ul>
+            </article>
+          </div>
+
+          <!-- Links diretos das ferramentas -->
+          <div class="tools">
+            <a class="tool-link" href="https://klang.io" target="_blank" rel="noopener noreferrer">Klangio</a>
+            <a class="tool-link" href="https://basicpitch.spotify.com" target="_blank" rel="noopener noreferrer">Basic Pitch</a>
+            <a class="tool-link" href="https://moises.ai" target="_blank" rel="noopener noreferrer">Moises</a>
+            <a class="tool-link" href="https://www.lalal.ai" target="_blank" rel="noopener noreferrer">LALAL.AI</a>
+            <a class="tool-link" href="https://suno.com" target="_blank" rel="noopener noreferrer">Suno</a>
+          </div>
+
+          <!-- Ponte para os prompts -->
+          <div class="prompt-intro">
+            <strong>Pronto para copiar, colar e experimentar</strong>
+            <p>
+              A partir daqui, você encontra prompts prontos para testar com uma IA de texto
+              (como ChatGPT ou Gemini). A ideia é que você copie o prompt, cole na IA, troque
+              os campos entre colchetes pelo seu repertório ou situação real e use as
+              respostas como ponto de partida para estudo, arranjo ou prática.
+            </p>
+          </div>
+
+          <!-- Prompts musicais -->
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Criação</div>
+                <h3>Para compor em um estilo específico</h3>
+              </div>
+            </div>
+            <p>
+              Use este prompt quando quiser uma ajuda para estruturar uma música: clima,
+              instrumentação, forma e ideias de harmonia. Ele não substitui sua autoria,
+              mas te dá um rascunho para adaptar.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Quero criar uma música original no estilo [ESTILO / REFERÊNCIA GERAL].
+Clima emocional: [CLIMA]
+Instrumentos principais: [INSTRUMENTOS]
+Andamento aproximado: [BPM]
+Público ou contexto: [CONTEXTO]
+
+Crie para mim:
+1. um conceito para essa música;
+2. uma sugestão de estrutura (intro, versos, refrão, ponte, final);
+3. uma ideia de progressão harmônica para cada parte;
+4. sugestões de timbres e dinâmica;
+5. orientações de arranjo que não copiem nenhuma obra existente, apenas se inspirem no estilo.
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Análise harmônica</div>
+                <h3>Para explicar cifra, função e possibilidades</h3>
+              </div>
+            </div>
+            <p>
+              Este prompt é útil quando você já tem a cifra ou a partitura (por exemplo, após
+              usar o Klangio ou o Basic Pitch) e quer entender melhor o que está acontecendo
+              na harmonia.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Faça uma análise harmônica didática da seguinte progressão:
+[TRECHO / CIFRA / TONALIDADE]
+
+Quero que você explique:
+1. qual é a tonalidade mais provável;
+2. qual é a função harmônica de cada acorde;
+3. se existem dominantes secundárias, empréstimos modais ou modulações;
+4. que sensação musical essa sequência gera (tensão, repouso, movimento etc.);
+5. possibilidades de substituição harmônica para deixar o som mais moderno ou mais simples;
+6. como você explicaria essa progressão para um estudante de [NÍVEL].
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Teoria musical</div>
+                <h3>Para estudar um tema com exercícios</h3>
+              </div>
+            </div>
+            <p>
+              Aqui a IA funciona como um professor de teoria que monta explicação e exercícios
+              graduais, adaptados ao seu instrumento e ao seu nível.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Atue como professor de teoria musical.
+Quero estudar [TEMA] (por exemplo: intervalos, campo harmônico maior, campo harmônico menor, modos, ritmos compostos).
+Meu nível atual é [NÍVEL].
+Meu instrumento é [INSTRUMENTO].
+
+Explique o tema de forma progressiva e depois entregue:
+1. um exemplo prático no meu instrumento;
+2. 5 exercícios graduais (do mais simples ao mais desafiador);
+3. 3 erros comuns que os alunos cometem;
+4. um plano curto de revisão para 7 dias.
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Arranjo</div>
+                <h3>Para sugerir ideias novas para a orquestra</h3>
+              </div>
+            </div>
+            <p>
+              Conversando com a realidade da orquestra. Você pode descrever o
+              repertório, a formação do grupo e o nível dos músicos, e pedir ideias de
+              arranjo para experimentar.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Tenho a seguinte música/partitura como base: [DESCREVA OU COLE UM TRECHO DA CIFRA/LETRA].
+Formação atual da orquestra: [FORMAÇÃO / NAIPE].
+Nível técnico médio dos músicos: [NÍVEL].
+Objetivo do novo arranjo: [OBJETIVO] (por exemplo: deixar mais acessível para iniciantes, criar versão mais impactante para concerto, adaptar para grupo reduzido).
+
+Sugira ideias de arranjo considerando:
+1. uma nova introdução;
+2. redistribuição de vozes e contracantos entre os naipes;
+3. mudanças de dinâmica e textura ao longo da música;
+4. trechos em que um naipe específico possa brilhar;
+5. uma finalização mais marcante;
+6. opções simples e opções mais ousadas, sempre respeitando o nível informado.
+            </div>
+          </article>
+
+          <article class="card prompt-card">
+            <div class="prompt-title">
+              <div>
+                <div class="label">Rotina de prática</div>
+                <h3>Para organizar estudos com método + repertório</h3>
+              </div>
+            </div>
+            <p>
+              Use este prompt para combinar método (como Suzuki) com o repertório da orquestra,
+              pensando em tempo disponível, dificuldades e metas realistas.
+            </p>
+            <div class="codebox">
+              <button class="copy-btn">Copiar</button>
+Monte uma rotina de estudos musicais baseada no Método [MÉTODO, EX.: SUZUKI] e no repertório da orquestra.
+Instrumento: [INSTRUMENTO].
+Nível do aluno: [NÍVEL].
+Tempo diário disponível: [TEMPO].
+Peças do método em estudo: [LISTA].
+Repertório da orquestra: [LISTA].
+Dificuldades técnicas principais: [LISTA].
+
+Quero um plano com:
+1. aquecimento;
+2. estudo técnico (escala, arcada, articulação, etc.);
+3. estudo das peças do método;
+4. estudo do repertório da orquestra;
+5. revisão rápida do que foi visto em dias anteriores;
+6. metas semanais claras e orientações para não sobrecarregar o aluno.
+            </div>
+          </article>
+
+          <div class="accordion">
+            <div class="acc-item open">
+              <button class="acc-btn">
+                Como fazer isso caber na vida real <span>+</span>
+              </button>
+              <div class="acc-content">
+                Não é para usar todos os prompts de uma vez. Escolha o que faz sentido para a
+                sua fase: às vezes é só entender melhor a harmonia, às vezes é organizar uma
+                rotina, às vezes é brincar de arranjo. Comece pequeno, teste uma ideia por vez
+                e veja o que realmente ajuda no seu estudo ou na sua prática com a orquestra.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="trabalho" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Trabalho</h2>
+             <p>
+                Prompts voltados para produtividade, criação de agentes, finanças, vendas e
+                conteúdo. Aqui a IA entra como apoio para rascunhar ideias, organizar
+                informações e acelerar tarefas — sempre com revisão humana e bom senso.
+              </p>
+            </div>
+            <span class="badge">Bloco trabalho</span>
+          </div>
+          <!-- Visão geral das ferramentas de trabalho -->
+          <div class="cards">
+            <article class="card">
+              <h3>Lovable (apps sem código)</h3>
+              <p>
+                O Lovable ajuda a prototipar e construir aplicações web usando IA. Você
+                descreve o que quer, ele gera telas, fluxo e código inicial, e depois você
+                ajusta com cliques e pequenos textos.
+              </p>
+              <ul>
+                <li>Bom para tirar ideias do papel sem saber programar.</li>
+                <li>Útil para validar conceitos de produto e processos internos.</li>
+                <li>Ainda exige revisão humana de fluxo, texto e dados antes de usar “de verdade”.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Manus AI (escrita e revisão)</h3>
+              <p>
+                O Manus AI funciona como um copiloto de escrita para textos de trabalho:
+                e‑mails, propostas, relatórios, posts. Ele sugere versões, melhora a
+                clareza e ajuda a adaptar o tom.
+              </p>
+              <ul>
+                <li>Bom para rascunhar texto quando você está travada.</li>
+                <li>Ajuda a ajustar tom: mais formal, direto ou didático.</li>
+                <li>Você continua responsável por checar fatos e decidir o que vai ser enviado.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Gamma (apresentações com IA)</h3>
+              <p>
+                O Gamma cria apresentações, documentos e páginas a partir de um prompt ou
+                resumo. Ele sugere estrutura de slides, título, tópicos e visual de apoio.
+              </p>
+              <ul>
+                <li>Útil para montar apresentações rápidas de projeto, aula ou reunião.</li>
+                <li>Ajuda a organizar a narrativa e os tópicos principais.</li>
+                <li>O conteúdo precisa ser revisado e adaptado ao público antes de apresentar.</li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Notion + Notion AI (organização e projetos)</h3>
+              <p>
+                O Notion é um espaço único para anotações, tarefas, banco de dados e
+                documentos. Com o Notion AI, você consegue resumir páginas, gerar texto,
+                tirar dúvidas sobre o que está ali e criar estruturas de projetos sem sair
+                do mesmo lugar.
+              </p>
+              <ul>
+                <li>Bom para centralizar projetos, reuniões, tarefas e documentos.</li>
+                <li>Ajuda a resumir conteúdos longos e destacar itens de ação.</li>
+                <li>IA trabalha em cima do que já está no seu workspace: você continua
+                  responsável por organizar e revisar o que será usado na prática.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <div class="tools">
+            <a class="tool-link" href="https://gemini.google.com" target="_blank" rel="noopener noreferrer">Gemini</a>
+            <a class="tool-link" href="https://copilot.microsoft.com" target="_blank" rel="noopener noreferrer">Copilot</a>
+            <a class="tool-link" href="https://chatgpt.com" target="_blank" rel="noopener noreferrer">ChatGPT</a>
+            <a class="tool-link" href="https://www.canva.com" target="_blank" rel="noopener noreferrer">Canva</a>
+            <a class="tool-link" href="https://lovable.dev" target="_blank" rel="noopener noreferrer">Lovable</a>
+            <a class="tool-link" href="https://manus.ai" target="_blank" rel="noopener noreferrer">Manus AI</a>
+            <a class="tool-link" href="https://gamma.app" target="_blank" rel="noopener noreferrer">Gamma</a>
+            <a class="tool-link" href="https://www.notion.so" target="_blank" rel="noopener noreferrer">Notion</a>
+          </div>
+
+          <div class="callout">
+            <strong>Antes de sair usando para tudo no trabalho…</strong>
+            <ul>
+              <li>
+                IA não é consultor financeiro, jurídico ou médico. Use como rascunho,
+                mas decida com base em fontes confiáveis e, se possível, profissionais.
+              </li>
+              <li>
+                Revise números, datas, links e mensagens antes de enviar. Ela pode
+                “inventar” dados ou referências que parecem corretas, mas não são.
+              </li>
+              <li>
+                Não cole informações sigilosas (como dados de clientes, CPF, contratos
+                inteiros) em ferramentas abertas. Prefira versões aprovadas pela
+                instituição ou anonimize os exemplos.
+              </li>
+            </ul>
+          </div>
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para criar agente</div><h3>Prompt para definir um agente útil no trabalho</h3></div></div><p>Serve para desenhar um assistente especializado antes de automatizar de fato.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Quero criar um agente de IA para me ajudar em [ÁREA / TAREFA].
+Ele deve atender este contexto: [CONTEXTO].
+Público ou usuário final: [PÚBLICO].
+Principais tarefas repetitivas: [LISTA].
+
+Defina:
+1. objetivo do agente;
+2. entradas necessárias;
+3. regras e limites;
+4. tom de voz;
+5. fluxo de atendimento ou execução;
+6. exemplos de prompts de uso;
+7. riscos e validações humanas obrigatórias.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para aconselhamento</div><h3>Prompt com persona influente</h3></div></div><p>Ajuda a obter respostas mais focadas em um estilo de raciocínio específico.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Atue como um conselheiro estratégico com o estilo de pensamento de [NOME OU PERFIL PROFISSIONAL].
+Meu contexto é: [CONTEXTO].
+Meu problema atual é: [PROBLEMA].
+Meu objetivo em [PRAZO] é: [OBJETIVO].
+
+Quero que você:
+1. analise minha situação;
+2. diga o que eu devo parar, começar e continuar fazendo;
+3. proponha um plano de ação de 30 dias;
+4. aponte riscos e pontos cegos;
+5. seja direto e prático.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para finanças</div><h3>Prompt para organizar o financeiro</h3></div></div><p>Bom para autônomos, pequenos negócios ou organização doméstica. Use comoapoio para enxergar a situação e montar um rascunho de plano, não como aconselhamento financeiro oficial.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Quero organizar meu financeiro.
+Receita média mensal: [VALOR]
+Despesas fixas: [LISTA]
+Despesas variáveis: [LISTA]
+Dívidas atuais: [LISTA]
+Objetivo financeiro: [OBJETIVO]
+
+Monte:
+1. diagnóstico da situação;
+2. categorias de orçamento;
+3. prioridades de corte ou ajuste;
+4. plano de pagamento de dívidas, se houver;
+5. modelo simples de controle semanal e mensal.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para planilhas e dashboards</div><h3>Prompt para estruturar indicadores</h3></div></div><p>Útil para transformar um problema vago em visão de métricas.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Preciso criar uma planilha/dashboard para acompanhar [PROCESSO / NEGÓCIO].
+Quero monitorar: [OBJETIVOS].
+Os dados disponíveis hoje são: [DADOS].
+
+Me entregue:
+1. quais colunas a planilha deve ter;
+2. quais indicadores acompanhar;
+3. quais gráficos fazem mais sentido;
+4. quais perguntas de negócio esse dashboard deve responder;
+5. um exemplo de estrutura semanal e mensal.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para prospecção</div><h3>Prompt para abordar clientes</h3></div></div><p>Ajuda em vendas consultivas e mensagens de primeiro contato.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Quero prospectar clientes para [PRODUTO / SERVIÇO].
+Meu público ideal é [PÚBLICO].
+Minhas vantagens competitivas são [VANTAGENS].
+
+Crie:
+1. 3 perfis de cliente ideal;
+2. dores e objeções prováveis;
+3. script de primeira abordagem;
+4. mensagem curta para WhatsApp;
+5. e-mail de apresentação;
+6. follow-up para quem não respondeu em 3 dias.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para renda extra e negócio</div><h3>Prompt para ideias viáveis de nova renda</h3></div></div><p>Funciona bem quando você informa tempo, habilidades e orçamento inicial. As ideias servem como ponto de partida para você pesquisar, ajustar e decidir o que faz sentido na vida real.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Quero encontrar ideias de renda extra ou um novo negócio.
+Minhas habilidades: [LISTA]
+Tempo disponível por semana: [TEMPO]
+Orçamento inicial: [VALOR]
+Cidade ou contexto: [CONTEXTO]
+
+Sugira:
+1. 5 ideias viáveis para meu perfil;
+2. investimento inicial estimado;
+3. primeiros passos de cada ideia;
+4. riscos e dificuldade;
+5. qual delas você considera melhor e por quê.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para conteúdo</div><h3>Prompts para carrossel e reels</h3></div></div><p>Úteis para vender, educar ou divulgar um projeto.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Crie um carrossel para Instagram sobre [TEMA].
+Objetivo: [OBJETIVO]
+Público: [PÚBLICO]
+Tom: [TOM]
+
+Quero:
+1. capa forte;
+2. roteiro slide a slide;
+3. CTA final;
+4. legenda;
+5. 5 hashtags.
+
+Agora crie também um roteiro de Reels de até [TEMPO] segundos sobre o mesmo tema, com gancho inicial, falas ou tópicos de cena e CTA final.</div></article>
+        </section>
+
+        <section id="uso-geral" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Uso geral</h2>
+              <p>Prompt úteis para o cotidiano: casa, alimentação, rotina, exercícios e organização pessoal. Esse bloco ajuda a mostrar que IA também pode apoiar tarefas simples e práticas.</p>
+            </div>
+            <span class="badge">Bloco uso geral</span>
+          </div>
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para compras</div><h3>Prompt para lista de compras inteligente</h3></div></div><p>Bom para organizar refeições da semana e evitar desperdício.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Monte uma lista de compras para [NÚMERO] pessoas durante [PERÍODO].
+Objetivo: [ECONOMIA / PRATICIDADE / SAÚDE / OUTRO]
+Restrições alimentares: [LISTA]
+Orçamento: [VALOR]
+
+Quero:
+1. cardápio base;
+2. lista separada por categorias;
+3. estimativa do que dura mais;
+4. sugestões de substituição econômica.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para organização</div><h3>Prompt para decluttering de 1 gaveta por dia</h3></div></div><p>Ajuda a criar rotina leve e sustentável de organização.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Monte um plano de organização e decluttering de [AMBIENTE], trabalhando 1 gaveta, nicho ou setor por dia.
+Tempo diário disponível: [TEMPO]
+Nível atual de bagunça: [NÍVEL]
+Objetivo final: [OBJETIVO]
+
+Quero um cronograma com:
+1. tarefa do dia;
+2. tempo estimado;
+3. regra de descarte/doação;
+4. checklist de manutenção semanal.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para exercícios</div><h3>Prompt para rotina física adaptada</h3></div></div><p>Útil para começar de forma gradual e coerente com a realidade da pessoa.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Monte uma rotina de exercícios para [OBJETIVO].
+Idade: [IDADE]
+Nível atual: [NÍVEL]
+Restrições ou lesões: [RESTRIÇÕES]
+Tempo disponível: [TEMPO]
+Equipamentos disponíveis: [EQUIPAMENTOS]
+
+Organize por semana, com progressão, dias de descanso e observações de segurança.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para marmitas</div><h3>Prompt para cardápio de marmita congelada</h3></div></div><p>Ajuda a economizar tempo e manter constância alimentar.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Crie ideias de cardápio para marmita congelada para [NÚMERO] dias.
+Objetivo: [PRATICIDADE / EMAGRECIMENTO / GANHO DE MASSA / ECONOMIA]
+Restrições: [LISTA]
+Orçamento: [VALOR]
+
+Entregue:
+1. combinações de almoço e jantar;
+2. lista de preparo em lote;
+3. modo de armazenamento;
+4. lista de compras.</div></article>
+
+          <article class="card prompt-card"><div class="prompt-title"><div><div class="label">Para dieta</div><h3>Prompt para organizar alimentação por meta calórica</h3></div></div><p>Serve para montar uma estrutura inicial, sem substituir profissional de saúde.</p><div class="codebox"><button class="copy-btn">Copiar</button>
+Monte uma organização alimentar para [EMAGRECIMENTO / GANHO DE MASSA / MANUTENÇÃO].
+Meta calórica diária: [CALORIAS]
+Número de refeições: [NÚMERO]
+Preferências alimentares: [LISTA]
+Restrições: [LISTA]
+
+Quero:
+1. distribuição das refeições;
+2. exemplos de cardápios;
+3. alternativas baratas;
+4. lista de compras semanal;
+5. observações para adaptação conforme fome, saciedade e rotina.</div></article>
+        </section>
+
+        <section id="prompts" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Prompt engineering</h2>
+              <p>Esta seção resume uma forma simples de pensar bons pedidos para IA. Em vez de “pedir de qualquer jeito”, você melhora o contexto, orienta o objetivo e conduz refinamentos.</p>
+            </div>
+            <span class="badge">Bloco técnica</span>
+          </div>
+          <div class="credit"><strong>Crédito:</strong> a estrutura CEIA apresentada nesta palestra, foi criada pelo professor Carlos Viana.</div>
+          <div class="cards">
+            <article class="card">
+              <h3>Estrutura CEIA</h3>
+              <p>Use CEIA como forma prática de lembrar os elementos de um bom prompt: <strong>Contexto</strong>, <strong>Especificidade</strong>, <strong>Intenção</strong> e <strong>Ajustes</strong>. A lógica é simples: situar a IA, dizer exatamente o que quer, deixar claro o objetivo e ir refinando até chegar no resultado desejado.</p>
+            </article>
+            <article class="card">
+              <h3>Few-shot</h3>
+              <p>Técnica em que você mostra alguns exemplos do resultado esperado antes do pedido final. É muito útil quando quer padronizar estilo, formato, tom ou estrutura de resposta.</p>
+            </article>
+            <article class="card">
+              <h3>Follow-up refine</h3>
+              <p>Em vez de tentar acertar tudo no primeiro prompt, você melhora a resposta por etapas: pede redução, ajuste de tom, reorganização, aprofundamento ou adaptação para outro público.</p>
+            </article>
+            <article class="card">
+              <h3>Regra prática</h3>
+              <p>Um prompt inicial razoável + bons refinamentos costuma funcionar melhor do que tentar fazer um mega prompt perfeito de primeira.</p>
+            </article>
+          </div>
+          <article class="card prompt-card">
+            <div class="prompt-title"><div><div class="label">Modelo CEIA</div><h3>Template geral</h3></div></div>
+            <div class="codebox"><button class="copy-btn">Copiar</button>[C] Contexto: Estou trabalhando em [CONTEXTO]. Meu público é [PÚBLICO]. Meu nível é [NÍVEL].
+[E] Especificidade: Quero que você faça [TAREFA] em [FORMATO], com [CRITÉRIOS].
+[I] Intenção: O objetivo disso é [OBJETIVO].
+[A] Ajustes: Se necessário, refine por etapas, faça perguntas antes de responder e apresente uma versão inicial + uma versão melhorada.</div>
+          </article>
+          <article class="card prompt-card">
+            <div class="prompt-title"><div><div class="label">Exemplo few-shot</div><h3>Prompt com exemplos do formato esperado</h3></div></div>
+            <div class="codebox"><button class="copy-btn">Copiar</button>Quero que você gere chamadas curtas para divulgação de uma palestra.
+Siga o estilo destes exemplos:
+- Exemplo 1: [EXEMPLO]
+- Exemplo 2: [EXEMPLO]
+- Exemplo 3: [EXEMPLO]
+
+Agora crie 10 novas opções sobre [TEMA], mantendo o mesmo nível de clareza e impacto, sem copiar literalmente os exemplos.</div>
+          </article>
+          <article class="card prompt-card">
+            <div class="prompt-title"><div><div class="label">Exemplo follow-up refine</div><h3>Prompt para refinar uma resposta anterior</h3></div></div>
+            <div class="codebox"><button class="copy-btn">Copiar</button>Refine a resposta anterior com estas mudanças:
+1. deixe mais curta;
+2. use linguagem mais simples;
+3. adapte para público [PÚBLICO];
+4. transforme em tópicos;
+5. destaque o que é essencial e o que é opcional.</div>
+          </article>
+        </section>
+
+        <section id="etica" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Ética e segurança</h2>
+              <p>Fechamento importante para lembrar que IA amplia possibilidades, mas exige responsabilidade, verificação e consciência sobre privacidade, direitos autorais e desinformação.</p>
+            </div>
+            <span class="badge">Bloco crítico</span>
+          </div>
+          <div class="callout">Checagem humana continua obrigatória. IA pode inventar fatos com segurança aparente, reproduzir vieses e apresentar respostas convincentes, porém erradas.</div>
+          <div class="cards">
+            <article class="card"><h3>Alucinações</h3><p>Modelos podem responder de forma fluida mesmo quando não têm base confiável. Por isso, dados importantes, fontes, nomes, leis e números precisam ser conferidos.</p></article>
+            <article class="card"><h3>Viés</h3><p>A qualidade e o recorte dos dados de treino influenciam o tipo de resposta produzido. Isso pode reforçar estereótipos ou perspectivas limitadas.</p></article>
+            <article class="card"><h3>Direitos autorais</h3><p>Conteúdo gerado com IA pede cuidado especial com músicas, imagens, textos e materiais acadêmicos. Inspirar-se não é o mesmo que copiar ou redistribuir conteúdo protegido.</p></article>
+            <article class="card"><h3>LGPD</h3><p>Evite inserir dados pessoais sensíveis, documentos privados, informações médicas, financeiras ou de terceiros sem base legal e sem necessidade real.</p></article>
+            <article class="card"><h3>Golpes e desinformação</h3><p>Áudio, vídeo e imagem falsos ficaram mais fáceis de produzir. Desconfie de urgência exagerada, links encurtados, pedidos financeiros e perfis com comportamento estranho.</p></article>
+            <article class="card"><h3>Uso consciente</h3><p>Nem toda tarefa precisa de IA. Use quando ela realmente trouxer ganho de clareza, produtividade, aprendizado ou acessibilidade.</p></article>
+          </div>
+          <div class="tools">
+            <a class="tool-link" href="https://isitai.com" target="_blank" rel="noopener noreferrer">Detector de conteúdo IA</a>
+            <a class="tool-link" href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">ANPD / LGPD</a>
+          </div>
+          <div class="footer-note">Material original criado para apoio didático da palestra “IA Geradora de Oportunidades”. O conteúdo foi estruturado por assunto, mantendo juntos os prompts, usos e links de cada bloco para facilitar consulta em sala e posterior estudo autônomo.</div>
+        </section>
+
+        <section id="meio-ambiente" class="tab-panel">
+          <div class="section-head">
+            <div>
+              <h2>Meio ambiente e IA</h2>
+              <p>
+                Toda tecnologia tem um custo ambiental, e a IA não foge disso.
+                Data centers consomem energia e água na escala de países inteiros.
+                Ao mesmo tempo, essa mesma tecnologia pode ajudar a resolver problemas
+                climáticos, reduzir desperdícios e criar oportunidades mais acessíveis.
+                A questão não é "usar ou não usar", mas usar com consciência do custo.
+              </p>
+            </div>
+            <span class="badge">Custo x benefício</span>
+          </div>
+
+          <div class="cards">
+            <article class="card">
+              <h3>O custo ambiental da IA</h3>
+              <p>
+                Treinar e rodar modelos grandes exige muitos servidores ligados
+                o tempo todo: alto consumo de energia, emissão de CO₂ e uso de
+                água para resfriamento dos data centers.
+              </p>
+              <ul>
+                <li>
+                  Uma consulta a um modelo de linguagem como o ChatGPT pode consumir
+                  cerca de 10 vezes mais energia do que uma busca simples no Google.
+                </li>
+                <li>
+                  O crescimento do uso de IA tende a aumentar as emissões dos
+                  data centers se a matriz elétrica continuar baseada em combustíveis fósseis.
+                </li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Onde a IA pode ajudar o planeta</h3>
+              <p>
+                A mesma tecnologia que gera impacto pode ajudar a reduzi-lo,
+                se usada com propósito e bons dados.
+              </p>
+              <ul>
+                <li>
+                  Otimizar rotas de transporte, reduzir consumo de energia em
+                  prédios, melhorar previsão de demanda e detectar falhas antes
+                  que causem desperdício.
+                </li>
+                <li>
+                  Apoiar pesquisa climática, monitorar desmatamento em tempo real
+                  e mapear padrões de poluição para orientar políticas públicas.
+                </li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>IA vs. busca no Google</h3>
+              <p>
+                Nem toda interação com IA tem o mesmo peso energético. Entender
+                a diferença ajuda a fazer escolhas mais conscientes no dia a dia.
+              </p>
+              <ul>
+                <li>
+                  Uma busca comum no Google consome cerca de 0,3 Wh. Uma conversa
+                  com um modelo de linguagem pode chegar a 2,9 Wh por requisição,
+                  segundo estimativas da Agência Internacional de Energia.
+                </li>
+                <li>
+                  Se a busca virar "enriquecida com IA" (como já está acontecendo),
+                  esse custo sobe para todos, mesmo quem não pede explicitamente.
+                </li>
+                <li>
+                  Para tarefas simples que uma busca resolve, uma busca ainda pode
+                  ser a escolha mais leve.
+                </li>
+              </ul>
+            </article>
+
+            <article class="card">
+              <h3>Data centers no oceano e no espaço</h3>
+              <p>
+                Pesquisadores e empresas estão explorando alternativas radicais
+                para reduzir o impacto dos data centers na terra.
+              </p>
+              <ul>
+                <li>
+                  O Project Natick da Microsoft testou data centers submersos no
+                  fundo do mar, usando a água fria do oceano para resfriamento natural,
+                  com menor consumo de energia e taxa de falha mais baixa do que
+                  em terra. O projeto foi encerrado em 2024, mas provou a viabilidade
+                  técnica e ambiental do conceito.
+                </li>
+                <li>
+                  O Google anunciou o Project Suncatcher: satélites solares em
+                  órbita baixa (400 km acima da Terra) que processariam dados no
+                  espaço, usando energia solar contínua e resfriamento radiativo,
+                  sem consumir água. Lançamento de protótipos previsto para 2027.
+                </li>
+                <li>
+                  Empresas como Starcloud apostam que data centers espaciais
+                  poderão operar com até 90% menos custo de eletricidade,
+                  aproveitando o sol 24 horas e o frio do espaço para refrigeração.
+                </li>
+              </ul>
+            </article>
+          </div>
+
+          <!-- Reflexão em destaque — largura total -->
+          <article class="card curva-full" style="margin-top:20px; align-items:flex-start;">
+            <div class="curva-texto">
+              <h3>O que muda com a IA disponível para todos?</h3>
+              <p>
+                Não podemos parar o avanço tecnológico, precisamos buscar compreender e diferenciar as ferramentas oportunistas das que vieram para agregar no crescimento econômico e socioambiental de fato.
+                Durante muito tempo, ter acesso a conhecimento especializado era
+                caro ou difícil: contratar consultores, pagar por cursos, ter
+                alguém para revisar um texto, montar um plano financeiro ou
+                estudar com um tutor. Para muita gente, isso simplesmente não era viável.
+                Hoje temos com a ajuda da IA temos a capacidade das grandes mentes geniais na palma das nossas mãos, nunca tivemos tanto acesso à informação como agora.
+              </p>
+              <p>
+                A IA generativa muda parte dessa equação. Uma pessoa com acesso a uma ferramenta gratuita pode hoje tirar dúvidas de matéria, rascunhar um plano de negócio, melhorar um texto de candidatura de emprego ou montar uma apresentação, sem precisar pagar por
+                isso separadamente.
+                Temos acesso à receita para projetos e desenvolvimento de soluções incríveis!
+              </p>
+              <p>
+                Isso não resolve desigualdade por si só, e a ferramenta continua
+                sendo melhor aproveitada por quem já tem mais contexto e
+                repertório. Mas abre uma janela que antes estava fechada.
+                A oportunidade não está na IA em si, mas em quanto cada pessoa consegue extrair dela com pensamento crítico, criatividade e intenção.
+              </p>
+              <P>
+                Nós brasileiros somos conhecidos pela criatividade na resolução de problemas!
+              </P>
+              <P>
+                E hoje, aqui, vocês aprenderam a usar esse grande gerador de oportunidades!
+              </p>
+            </div>
+            <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:12px; min-width:220px; max-width:280px;">
+              <div class="callout" style="margin:0;">
+                <strong>Antes da IA</strong>
+                <ul style="margin:8px 0 0; padding-left:16px; line-height:1.7;">
+                  <li>Tutor particular: caro</li>
+                  <li>Revisão de texto: pago</li>
+                  <li>Consultoria financeira:
+                    restrita</li>
+                  <li>Protótipo de app: exigia equipe</li>
+                </ul>
+              </div>
+              <div class="credit" style="margin:0;">
+                <strong>Com IA acessível</strong>
+                <ul style="margin:8px 0 0; padding-left:16px; line-height:1.7;">
+                  <li>Tutor socrático gratuito</li>
+                  <li>Revisão e adaptação de tom</li>
+                  <li>Rascunho financeiro inicial</li>
+                  <li>Protótipo com prompt</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+        </section>
+      </main>
+    </section>
+  </div>
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    function activateTab(id){
+      tabButtons.forEach(btn => {
+        const active = btn.dataset.tab === id;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      tabPanels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+    });
+
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const text = btn.parentElement.innerText.replace('Copiar','').trim();
+        try{
+          await navigator.clipboard.writeText(text);
+          const old = btn.textContent;
+          btn.textContent = 'Copiado!';
+          setTimeout(() => btn.textContent = old, 1200);
+        }catch(e){
+          btn.textContent = 'Erro';
+          setTimeout(() => btn.textContent = 'Copiar', 1200);
+        }
+      });
+    });
+
+    document.querySelectorAll('.acc-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.acc-item');
+        item.classList.toggle('open');
+      });
+    });
+  </script>
+</body>
+</html>
+<!-- DEUS SEJA LOUVADO -->
