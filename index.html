@@ -150,6 +150,23 @@
     .card h3{margin:0 0 10px;font-size:1.02rem}
     .card p{margin:0;color:var(--muted);line-height:1.65;text-align: justify;text-justify: inter-word;}
     .card ul{margin:12px 0 0;padding-left:18px;color:var(--muted);line-height:1.65;text-align: justify;text-justify: inter-word;}
+
+    .video-wrap {
+      margin-top: 12px;
+      border-radius: 12px;
+      overflow: hidden;
+      /* opcional: borda para combinar com o card */
+      border: 1px solid var(--line);
+    }
+
+    /* iframe responsivo no formato 16:9 */
+    .video-wrap iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      /* se o navegador não suportar aspect-ratio, dá pra usar height fixa */
+      max-height: 260px;
+    }
     .prompt-intro{
       margin:18px 4px 10px;
       padding:14px 16px;
@@ -356,6 +373,19 @@
                 <li>Não substitui o livro nem o professor: você continua responsável por conferir.</li>
               </ul>
             </article>
+            <article class="card">
+              <h3>Planejadores e calendários</h3>
+              <p>
+                Aqui entram planilhas, agendas e calendários digitais. A IA ajuda a montar
+                o primeiro rascunho do plano de estudos, mas quem conhece a rotina é você.
+                Ajustar o plano à sua realidade é parte importante do processo.
+              </p>
+              <ul>
+                <li>Use IA para gerar uma proposta de rotina.</li>
+                <li>Ajuste horários, dias e pausas conforme sua vida real.</li>
+                <li>Revise o plano a cada semana, dando feedback para a própria IA.</li>
+              </ul>
+            </article>
 
             <article class="card">
               <h3>NotebookLM</h3>
@@ -369,6 +399,11 @@
                 <li>Ajuda a fazer resumos, roteiros, mapas mentais e roteiros de podcast.</li>
                 <li>É ideal quando você não quer que a IA “invente” nada fora da sua fonte.</li>
               </ul>
+              <!-- Dentro do card do NotebookLM -->
+              
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/n82HNKl661Y?si=7u2Zg0X8fJyw5Jnz" title="Curso introdutório de NotebookLM" loading="lazy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              </div>
             </article>
 
             <article class="card">
@@ -384,20 +419,11 @@
                 <li>Você marca se foi fácil, médio ou difícil.</li>
                 <li>O Anki calcula quando te mostrar de novo para você lembrar por mais tempo.</li>
               </ul>
-            </article>
+              <!-- Dentro do card do Anki -->
 
-            <article class="card">
-              <h3>Planejadores e calendários</h3>
-              <p>
-                Aqui entram planilhas, agendas e calendários digitais. A IA ajuda a montar
-                o primeiro rascunho do plano de estudos, mas quem conhece a rotina é você.
-                Ajustar o plano à sua realidade é parte importante do processo.
-              </p>
-              <ul>
-                <li>Use IA para gerar uma proposta de rotina.</li>
-                <li>Ajuste horários, dias e pausas conforme sua vida real.</li>
-                <li>Revise o plano a cada semana, dando feedback para a própria IA.</li>
-              </ul>
+              <div class="video-wrap">
+                <iframe src="https://www.youtube.com/embed/SK9vCBmKDSA?si=zqxGG9odGANZt2jO" title="YouTube video player" loading="lazy" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              </div>
             </article>
           </div>
 
